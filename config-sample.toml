@@ -1,0 +1,23 @@
+[app]
+name = "RestAPI"
+version = "0.0.1"
+address = "localhost"
+port = 8080
+shutdown_timeout = 5 # server clean shutdown timeout in seconds
+
+[sqldb]
+driver = "mysql"
+connstring = "mysql.connection.string"
+max_idle = 10
+max_conn = 100
+
+[redis]
+server = "127.0.0.1:6379"
+password = ""
+max_idle = 3
+idle_timeout = 240 # seconds
+
+[swagger]
+api_path = "/apidocs.json"
+url = "/apidocs/"
+file_path = "/path/to/swagger-ui/dir"
