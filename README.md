@@ -48,3 +48,17 @@ func (p *Page) Index(req *restful.Request, resp *restful.Response) {
 }
 
 ```
+
+### Code source and libraries
+
+* [goji](https://github.com/zenazn/goji)
+* [dotsql](https://github.com/gchaincl/dotsql)
+* [gorp](https://gopkg.in/gorp.v1)
+* [go-restful](https://github.com/emicklei/go-restful)
+* [logrus](https://github.com/Sirupsen/logrus)
+* [redigo](https://github.com/garyburd/redigo)
+* [mysql](https://github.com/go-sql-driver/mysql)
+* [go-sqlite3](https://github.com/mattn/go-sqlite3)
+* [graceful](https://gopkg.in/tylerb/graceful.v1)
+* [pq](https://github.com/lib/pq)
+* [go-toml](https://github.com/pelletier/go-toml)
