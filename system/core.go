@@ -179,7 +179,7 @@ func checkErr(err error, msg string) {
 	}
 }
 
-func errorResponse(msg string, code int) []byte {
+func errorResponse(msg interface{}, code int) []byte {
 	res := map[string]interface{}{
 		"status": "error",
 		"msg":    msg,
@@ -194,7 +194,7 @@ func errorResponse(msg string, code int) []byte {
 	return b
 }
 
-func WriteError(msg string, err interface{}, status int, r *restful.Response) {
+func WriteError(msg interface{}, err interface{}, status int, r *restful.Response) {
 	log.Error(err)
 	r.AddHeader("Content-Type", "application/json")
 	b := errorResponse(msg, status)
