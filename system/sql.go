@@ -5,7 +5,25 @@ import (
 	"io"
 	"regexp"
 	"strings"
+
+	"github.com/jmoiron/sqlx"
 )
+
+type Model struct {
+	Id      int64
+	Updated int64
+	Created int64
+}
+
+func initDb(driver, datasource string, max_idle, max_open int) *sqlx.DB {
+	// connect to db
+	db, err := sqlx.Connect(driver, datasource)
+	checkErr(err, "sql: database connection failed")
+	db.SetMaxIdleConns(max_idle)
+	db.SetMaxOpenConns(max_open)
+
+	return db
+}
 
 type QueryManager struct {
 	queries map[string]string

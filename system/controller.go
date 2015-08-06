@@ -3,8 +3,8 @@ package system
 import (
 	"github.com/emicklei/go-restful"
 	"github.com/garyburd/redigo/redis"
+	"github.com/jmoiron/sqlx"
 	"github.com/pelletier/go-toml"
-	"gopkg.in/gorp.v1"
 )
 
 type Controller struct {
@@ -19,10 +19,10 @@ func (c *Controller) GetConfig(req *restful.Request) *toml.TomlTree {
 	return nil
 }
 
-func (c *Controller) GetSQL(req *restful.Request) *gorp.DbMap {
+func (c *Controller) GetSQL(req *restful.Request) *sqlx.DB {
 	tmp := req.Attribute("sql")
 	if tmp != nil {
-		val := tmp.(*gorp.DbMap)
+		val := tmp.(*sqlx.DB)
 		return val
 	}
 	return nil

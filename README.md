@@ -53,7 +53,7 @@ func (p *Page) Index(req *restful.Request, resp *restful.Response) {
 
 * [goji](https://github.com/zenazn/goji)
 * [dotsql](https://github.com/gchaincl/dotsql)
-* [gorp](https://gopkg.in/gorp.v1)
+* [sqlx](https://github.com/jmoiron/sqlx)
 * [go-restful](https://github.com/emicklei/go-restful)
 * [logrus](https://github.com/Sirupsen/logrus)
 * [redigo](https://github.com/garyburd/redigo)

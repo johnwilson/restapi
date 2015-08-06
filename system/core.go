@@ -12,15 +12,15 @@ import (
 	"github.com/emicklei/go-restful/swagger"
 	"github.com/garyburd/redigo/redis"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pelletier/go-toml"
-	"gopkg.in/gorp.v1"
 	"gopkg.in/tylerb/graceful.v1"
 )
 
 type Application struct {
-	SQL       *gorp.DbMap
+	SQL       *sqlx.DB
 	Redis     *redis.Pool
 	Config    *toml.TomlTree
 	Container *restful.Container
@@ -163,7 +163,7 @@ func (a *Application) initSwagger() {
 func (a *Application) stop() {
 	log.Info("Shutting down service...")
 	log.Info("closing sql db...")
-	if err := a.SQL.Db.Close(); err != nil {
+	if err := a.SQL.Close(); err != nil {
 		log.Errorf("error closing sql db: %s", err.Error())
 	}
 	log.Info("closing redis pool...")
