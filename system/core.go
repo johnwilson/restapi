@@ -152,7 +152,7 @@ func (a *Application) initRedis() {
 func (a *Application) initSwagger() {
 	swconfig := swagger.Config{
 		WebServices:     a.Container.RegisteredWebServices(),
-		WebServicesUrl:  fmt.Sprintf("http://%s", a.serviceAddress()),
+		WebServicesUrl:  a.Config.Get("swagger.ws_url").(string),
 		ApiPath:         a.Config.Get("swagger.api_path").(string),
 		SwaggerPath:     a.Config.Get("swagger.url").(string),
 		SwaggerFilePath: a.Config.Get("swagger.file_path").(string),

@@ -21,3 +21,4 @@ idle_timeout = 240 # seconds
 api_path = "/apidocs.json"
 url = "/apidocs/"
 file_path = "/path/to/swagger-ui/dir"
+ws_url = "http://actual/url/for/your/webservices"
