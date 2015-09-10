@@ -3,7 +3,7 @@ package system
 import (
 	"github.com/emicklei/go-restful"
 	"github.com/garyburd/redigo/redis"
-	"github.com/jmoiron/sqlx"
+	"github.com/jinzhu/gorm"
 	"github.com/pelletier/go-toml"
 )
 
@@ -19,10 +19,10 @@ func (c *Controller) GetConfig(req *restful.Request) *toml.TomlTree {
 	return nil
 }
 
-func (c *Controller) GetSQL(req *restful.Request) *sqlx.DB {
+func (c *Controller) GetSQL(req *restful.Request) *gorm.DB {
 	tmp := req.Attribute("sql")
 	if tmp != nil {
-		val := tmp.(*sqlx.DB)
+		val := tmp.(*gorm.DB)
 		return val
 	}
 	return nil
@@ -37,8 +37,9 @@ func (c *Controller) GetRedis(req *restful.Request) *redis.Pool {
 	return nil
 }
 
-func (c *Controller) GetQueries(req *restful.Request) *QueryManager {
-	tmp := req.Attribute("queries")
+// Get Query Manager
+func (c *Controller) GetQM(req *restful.Request) *QueryManager {
+	tmp := req.Attribute("qm")
 	if tmp != nil {
 		val := tmp.(*QueryManager)
 		return val

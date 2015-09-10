@@ -6,23 +6,21 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/jinzhu/gorm"
 )
 
-type Model struct {
-	Id      int64
-	Updated int64
-	Created int64
-}
-
-func initDb(driver, datasource string, max_idle, max_open int) *sqlx.DB {
+func initDb(driver, datasource string, max_idle, max_open int) *gorm.DB {
 	// connect to db
-	db, err := sqlx.Connect(driver, datasource)
-	checkErr(err, "sql: database connection failed")
-	db.SetMaxIdleConns(max_idle)
-	db.SetMaxOpenConns(max_open)
+	db, err := gorm.Open(driver, datasource)
+	checkErr(err, "sql: db driver creation failed")
+	err = db.DB().Ping()
+	checkErr(err, "sql: db connection failed")
 
-	return db
+	// config
+	db.DB().SetMaxIdleConns(max_idle)
+	db.DB().SetMaxOpenConns(max_open)
+
+	return &db
 }
 
 type QueryManager struct {

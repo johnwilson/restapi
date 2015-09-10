@@ -4,3 +4,6 @@
 # Editor files
 *.sublime-workspace
 *.sublime-project
+
+# Config files
+config.toml

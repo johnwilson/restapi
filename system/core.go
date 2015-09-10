@@ -12,7 +12,7 @@ import (
 	"github.com/emicklei/go-restful/swagger"
 	"github.com/garyburd/redigo/redis"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
+	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pelletier/go-toml"
@@ -20,7 +20,7 @@ import (
 )
 
 type Application struct {
-	SQL       *sqlx.DB
+	SQL       *gorm.DB
 	Redis     *redis.Pool
 	Config    *toml.TomlTree
 	Container *restful.Container
