@@ -4,33 +4,45 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/emicklei/go-restful"
 	"github.com/emicklei/go-restful/swagger"
-	"github.com/garyburd/redigo/redis"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/pelletier/go-toml"
 	"gopkg.in/tylerb/graceful.v1"
 )
 
 type Application struct {
-	SQL       *gorm.DB
-	Redis     *redis.Pool
-	Config    *toml.TomlTree
-	Container *restful.Container
-	Queries   *QueryManager
+	Config      *toml.TomlTree
+	Container   *restful.Container
+	pluginsRepo map[string]Plugin
+}
+
+type Plugin interface {
+	Init(a *Application) error
+	Close() error
+	Get() interface{}
+}
+
+func (a *Application) RegisterPlugin(n string, p Plugin) {
+	// check plugin isn't nil
+	if p == nil {
+		log.Fatalf("Plugin %q couldn't be registered\n", n)
+	}
+	// check if already registered
+	if _, exists := a.pluginsRepo[n]; exists {
+		log.Printf("Plugin %q already registered", n)
+	}
+	// initialize plugin
+	if err := p.Init(a); err != nil {
+		log.Fatalf("Plugin initialization error:\n%s", err)
+	}
+	// add to registry
+	a.pluginsRepo[n] = p
 }
 
 func (a *Application) Init(filename string) {
-	// init queries
-	a.Queries = NewQueryManager()
-
 	// load config file
 	config, err := toml.LoadFile(filename)
 	if err != nil {
@@ -38,18 +50,11 @@ func (a *Application) Init(filename string) {
 	}
 	a.Config = config
 
-	// init databases/services
-	a.initRedis()
-	a.initSQL()
+	// init plugin repository
+	a.pluginsRepo = map[string]Plugin{}
+
+	// init web service container
 	a.initWSContainer()
-}
-
-func (a *Application) LoadSQLQueries(filepath string) {
-	f, err := os.Open(filepath)
-	checkErr(err, "sql file couldn't be loaded")
-	defer f.Close()
-
-	a.Queries.Load(f)
 }
 
 func (a *Application) serviceAddress() string {
@@ -87,11 +92,14 @@ func (a *Application) Start() {
 	srv.ListenAndServe()
 }
 
-func (a *Application) Inject(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
+// Make plugins available to controllers with this middleware
+func (a *Application) Plugins(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
 	req.SetAttribute("app.config", a.Config)
-	req.SetAttribute("sql", a.SQL)
-	req.SetAttribute("redis", a.Redis)
-	req.SetAttribute("queries", a.Queries)
+
+	// inject plugins
+	for k, v := range a.pluginsRepo {
+		req.SetAttribute(k, v.Get())
+	}
 
 	chain.ProcessFilter(req, resp)
 }
@@ -104,49 +112,6 @@ func (a *Application) initWSContainer() {
 	container.DoNotRecover(true)
 
 	a.Container = container
-}
-
-// Initialize SQL Database
-func (a *Application) initSQL() {
-	driver := a.Config.Get("sqldb.driver").(string)
-	datasource := a.Config.Get("sqldb.connstring").(string)
-	max_idle := int(a.Config.Get("sqldb.max_idle").(int64))
-	max_open := int(a.Config.Get("sqldb.max_conn").(int64))
-	a.SQL = initDb(driver, datasource, max_idle, max_open)
-}
-
-// Initialize Redis Database
-func (a *Application) initRedis() {
-	// Redis
-	rmi := int(a.Config.Get("redis.max_idle").(int64))
-	rit := time.Duration(a.Config.Get("redis.idle_timeout").(int64)) * time.Second
-	a.Redis = &redis.Pool{
-		MaxIdle:     rmi,
-		IdleTimeout: rit,
-		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", a.Config.Get("redis.server").(string))
-			if err != nil {
-				return nil, err
-			}
-			pw := a.Config.Get("redis.password").(string)
-			if len(pw) > 0 {
-				if _, err := c.Do("AUTH", a.Config.Get("redis.password").(string)); err != nil {
-					c.Close()
-					return nil, err
-				}
-			}
-			return c, err
-		},
-		TestOnBorrow: func(c redis.Conn, t time.Time) error {
-			_, err := c.Do("PING")
-			return err
-		},
-	}
-	// test connection
-	_, err := a.Redis.Dial()
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func (a *Application) initSwagger() {
@@ -162,14 +127,14 @@ func (a *Application) initSwagger() {
 
 func (a *Application) stop() {
 	log.Info("Shutting down service...")
-	log.Info("closing sql db...")
-	if err := a.SQL.Close(); err != nil {
-		log.Errorf("error closing sql db: %s", err.Error())
+
+	// stop plugins
+	for _, v := range a.pluginsRepo {
+		if err := v.Close(); err != nil {
+			log.Errorf("Plugin close error:\n%s", err)
+		}
 	}
-	log.Info("closing redis pool...")
-	if err := a.Redis.Close(); err != nil {
-		log.Errorf("error closing redis pool: %s", err.Error())
-	}
+
 	log.Info("goodbye")
 }
 

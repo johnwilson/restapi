@@ -1,0 +1,21 @@
+[app]
+name = "Rest API Examples"
+version = "0.0.2"
+address = "localhost"
+port = 8080
+shutdown_timeout = 2 # seconds
+
+[sqldb]
+driver = "sqlite3"
+connstring = "test.db"
+max_idle = 10
+max_conn = 100
+
+[swagger]
+api_path = "/apidocs.json"
+url = "/apidocs/"
+file_path = "../swagger"
+ws_url = "http://localhost:8080"
+
+[sqlqueries]
+path = "sample.sql"

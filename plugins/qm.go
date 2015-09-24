@@ -1,33 +1,53 @@
-package system
+package plugins
 
 import (
 	"bufio"
+	"fmt"
 	"io"
+	"os"
 	"regexp"
 	"strings"
 
-	"github.com/jinzhu/gorm"
+	"github.com/johnwilson/restapi/system"
 )
 
-func initDb(driver, datasource string, max_idle, max_open int) *gorm.DB {
-	// connect to db
-	db, err := gorm.Open(driver, datasource)
-	checkErr(err, "sql: db driver creation failed")
-	err = db.DB().Ping()
-	checkErr(err, "sql: db connection failed")
+type PluginQM struct {
+	qm *QueryManager
+}
 
-	// config
-	db.DB().SetMaxIdleConns(max_idle)
-	db.DB().SetMaxOpenConns(max_open)
+func (qp *PluginQM) Init(a *system.Application) error {
 
-	return &db
+	qm := newQueryManager()
+
+	// get config
+	fp := a.Config.Get("sqlqueries.path").(string)
+	f, err := os.Open(fp)
+	defer f.Close()
+
+	if err != nil {
+		return fmt.Errorf("query manager: sql file loading failed:\n%s", err)
+	}
+
+	// load queries
+	qm.Load(f)
+	qp.qm = qm
+
+	return nil
+}
+
+func (qp *PluginQM) Get() interface{} {
+	return qp.qm
+}
+
+func (qp *PluginQM) Close() error {
+	return nil
 }
 
 type QueryManager struct {
 	queries map[string]string
 }
 
-func NewQueryManager() *QueryManager {
+func newQueryManager() *QueryManager {
 	qm := new(QueryManager)
 	qm.queries = map[string]string{}
 	return qm

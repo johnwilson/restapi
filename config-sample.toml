@@ -17,6 +17,9 @@ password = ""
 max_idle = 3
 idle_timeout = 240 # seconds
 
+[sqlqueries]
+path = "/path/to/sql/file"
+
 [swagger]
 api_path = "/apidocs.json"
 url = "/apidocs/"

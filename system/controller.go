@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	"github.com/emicklei/go-restful"
-	"github.com/garyburd/redigo/redis"
-	"github.com/jinzhu/gorm"
 	"github.com/pelletier/go-toml"
 )
 
@@ -90,30 +88,6 @@ func (ct *Controller) GetConfig(req *restful.Request) *toml.TomlTree {
 	return nil
 }
 
-func (ct *Controller) GetSQL(req *restful.Request) *gorm.DB {
-	tmp := req.Attribute("sql")
-	if tmp != nil {
-		val := tmp.(*gorm.DB)
-		return val
-	}
-	return nil
-}
-
-func (ct *Controller) GetRedis(req *restful.Request) *redis.Pool {
-	tmp := req.Attribute("redis")
-	if tmp != nil {
-		val := tmp.(*redis.Pool)
-		return val
-	}
-	return nil
-}
-
-// Get Query Manager
-func (ct *Controller) GetQM(req *restful.Request) *QueryManager {
-	tmp := req.Attribute("qm")
-	if tmp != nil {
-		val := tmp.(*QueryManager)
-		return val
-	}
-	return nil
+func (ct *Controller) GetPlugin(name string, req *restful.Request) interface{} {
+	return req.Attribute(name)
 }

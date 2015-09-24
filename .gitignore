@@ -5,5 +5,5 @@
 *.sublime-workspace
 *.sublime-project
 
-# Config files
-config.toml
+# sqlite db files
+*.db

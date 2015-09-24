@@ -13,7 +13,7 @@ func NewApplication(configFile string) *system.Application {
 	app.Container.Filter(middleware.RequestID)
 	app.Container.Filter(middleware.Logger)
 	app.Container.Filter(middleware.Recoverer)
-	app.Container.Filter(app.Inject)
+	app.Container.Filter(app.Plugins)
 
 	return app
 }
