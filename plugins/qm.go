@@ -11,11 +11,11 @@ import (
 	"github.com/johnwilson/restapi/system"
 )
 
-type PluginQM struct {
+type QM struct {
 	qm *QueryManager
 }
 
-func (qp *PluginQM) Init(a *system.Application) error {
+func (qp *QM) Init(a *system.Application) error {
 
 	qm := newQueryManager()
 
@@ -35,11 +35,11 @@ func (qp *PluginQM) Init(a *system.Application) error {
 	return nil
 }
 
-func (qp *PluginQM) Get() interface{} {
+func (qp *QM) Get() interface{} {
 	return qp.qm
 }
 
-func (qp *PluginQM) Close() error {
+func (qp *QM) Close() error {
 	return nil
 }
 

@@ -69,8 +69,8 @@ func main() {
 	app := restapi.NewApplication("config.toml")
 
 	// plugins
-	app.RegisterPlugin("orm", new(plugins.PluginGorm))
-	app.RegisterPlugin("qm", new(plugins.PluginQM))
+	app.RegisterPlugin("orm", new(plugins.Gorm))
+	app.RegisterPlugin("qm", new(plugins.QM))
 
 	ct := MainController{}
 	ct.Register(app.Container)

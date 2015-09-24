@@ -10,11 +10,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type PluginGorm struct {
+type Gorm struct {
 	db *gorm.DB
 }
 
-func (g *PluginGorm) Init(a *system.Application) error {
+func (g *Gorm) Init(a *system.Application) error {
 	// get config
 	driver := a.Config.Get("sqldb.driver").(string)
 	datasource := a.Config.Get("sqldb.connstring").(string)
@@ -40,11 +40,11 @@ func (g *PluginGorm) Init(a *system.Application) error {
 	return nil
 }
 
-func (g *PluginGorm) Get() interface{} {
+func (g *Gorm) Get() interface{} {
 	return g.db
 }
 
-func (g *PluginGorm) Close() error {
+func (g *Gorm) Close() error {
 	if err := g.db.Close(); err != nil {
 		return fmt.Errorf("gorm: db close failed:\n%s", err)
 	}
