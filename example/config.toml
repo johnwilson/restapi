@@ -2,7 +2,7 @@
 name = "Rest API Examples"
 version = "0.0.2"
 address = "localhost"
-port = 8080
+port = 5000
 shutdown_timeout = 2 # seconds
 
 [sqldb]
@@ -15,7 +15,7 @@ max_conn = 100
 api_path = "/apidocs.json"
 url = "/apidocs/"
 file_path = "../swagger"
-ws_url = "http://localhost:8080"
+ws_url = "http://localhost:5000"
 
 [sqlqueries]
 path = "sample.sql"

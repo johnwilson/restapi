@@ -2,11 +2,11 @@ package middleware
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"runtime/debug"
 
 	"github.com/emicklei/go-restful"
-
 	"github.com/johnwilson/restapi/system"
 )
 
@@ -22,8 +22,8 @@ func Recoverer(req *restful.Request, resp *restful.Response, chain *restful.Filt
 		if err := recover(); err != nil {
 			printPanic(reqID, err)
 			debug.PrintStack()
-			msg := "Application encountered and error. Contact admin."
-			system.WriteError(msg, err, 500, resp)
+			e := fmt.Errorf("Application encountered and error. Contact admin.")
+			system.WriteError(e, resp)
 		}
 	}()
 

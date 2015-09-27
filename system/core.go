@@ -144,6 +144,20 @@ func checkErr(err error, msg string) {
 	}
 }
 
+type ApiError struct {
+	SystemMessage string
+	ClientMessage interface{}
+	Code          int
+}
+
+func (e ApiError) Error() string {
+	return e.SystemMessage
+}
+
+func NewApiError(sm string, cm interface{}, code int) error {
+	return ApiError{sm, cm, code}
+}
+
 func errorResponse(msg interface{}, code int) []byte {
 	res := map[string]interface{}{
 		"status": "error",
@@ -159,9 +173,22 @@ func errorResponse(msg interface{}, code int) []byte {
 	return b
 }
 
-func WriteError(msg interface{}, err interface{}, status int, r *restful.Response) {
+func WriteError(err error, r *restful.Response) {
 	log.Error(err)
+
+	ae, ok := err.(ApiError)
+	var b []byte
+	var status int
+
+	if !ok {
+		msg := "Internal Server Error. Please report to admin."
+		status = 500
+		b = errorResponse(msg, 500)
+	} else {
+		status = ae.Code
+		b = errorResponse(ae.ClientMessage, ae.Code)
+	}
+
 	r.AddHeader("Content-Type", "application/json")
-	b := errorResponse(msg, status)
 	r.WriteErrorString(status, string(b))
 }
